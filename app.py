@@ -6,7 +6,7 @@ def initialize_streamlit_session():
         st.session_state.messages = []
 
     if "client" not in st.session_state:
-        token = dl.get_copilot_token(st.secrets("TOKEN_ENDPOINT"))
+        token = dl.get_copilot_token(st.secrets("token_endpoint"))
         st.session_state.client = dl.DirectLineClient(token)
         st.session_state.client.start_conversation()
 
