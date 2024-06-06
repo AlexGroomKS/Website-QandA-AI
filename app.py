@@ -6,7 +6,7 @@ def initialize_streamlit_session():
         st.session_state.messages = []
 
     if "client" not in st.session_state:
-        token = dl.get_copilot_token(st.secrets["token_endpoint"])
+        token = dl.get_copilot_token("https://defaultfc30585e9c6d4255b46a16cfe906bb.56.environment.api.powerplatform.com/powervirtualagents/botsbyschema/cra44_remoteSparkWebsiteQACopilot/directline/token?api-version=2022-03-01-preview")
         st.session_state.client = dl.DirectLineClient(token)
         st.session_state.client.start_conversation()
 
