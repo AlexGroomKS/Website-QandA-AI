@@ -1,0 +1,6 @@
+[theme]
+primaryColor = "#D99E00"  # Slightly less bright yellow
+backgroundColor = "#1E1E1E"  # Dark grey background
+secondaryBackgroundColor = "#2E2E2E"  # Slightly lighter dark grey for secondary background
+textColor = "#FFFFFF"  # White text color
+font = "sans serif"  # Font family
