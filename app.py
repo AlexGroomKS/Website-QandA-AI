@@ -1,13 +1,12 @@
 import direct_line as dl
 import streamlit as st
 
-TOKEN_ENDPOINT = 'place-holder'
 def initialize_streamlit_session():
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
     if "client" not in st.session_state:
-        token = dl.get_copilot_token(TOKEN_ENDPOINT)
+        token = dl.get_copilot_token(st.secrets("TOKEN_ENDPOINT"))
         st.session_state.client = dl.DirectLineClient(token)
         st.session_state.client.start_conversation()
 
