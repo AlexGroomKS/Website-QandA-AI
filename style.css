@@ -1,0 +1,57 @@
+body {
+    font-family: "Arial", sans-serif;
+}
+
+.citation-container {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+}
+
+.citation-title {
+    font-weight: bold;
+    color: #D99E00;
+}
+
+.citation-link {
+    color: #264653;
+    text-decoration: none;
+}
+
+.citation-link:hover {
+    text-decoration: underline;
+}
+
+/* Branding colors */
+header {
+    background-color: #D99E00;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #D99E00;
+}
+
+/* Customize expander header hover and focus */
+[data-testid="stExpander"] > div:first-child {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+[data-testid="stExpander"] > div:first-child:hover {
+    color: #D99E00 !important;
+    border-color: #D99E00 !important;
+}
+
+[data-testid="stExpander"] > div:first-child:focus {
+    color: #D99E00 !important;
+    border-color: #D99E00 !important;
+}
+
+/* Customize text input box focus border */
+[data-testid="stTextInput"] > div > input:focus {
+    border-color: #D99E00 !important;
+    box-shadow: 0 0 0 0.2rem rgba(217, 158, 0, 0.25) !important;
+}
+
