@@ -23,8 +23,8 @@ def display_instructions():
         ### Here are some instructions to help you get started
         ''')
     st.markdown('''
-        - Type your message in the input box below and press Enter to send it.
-        - The bot will respond to your message and the conversation history will be displayed above.
+        - Go to the 'Chat' page to talk to our website assistant.
+        - The bot will respond to your message and will provide references from https://help.kognitivspark.com/.
         - Use specific keywords or phrases for better responses.
         - If you need to start a new conversation, enter "restart" then "yes".
     ''')
