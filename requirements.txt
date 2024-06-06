@@ -1,4 +1,3 @@
-python
+python=3.12.3
 streamlit
-time
 requests
