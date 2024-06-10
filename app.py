@@ -31,8 +31,8 @@ def display_instructions():
 
 # Load custom CSS
 def local_css(file_name):
-    with open(file_name) as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+    with open(file_name) as file_in:
+        st.markdown(f'<style>{file_in.read()}</style>', unsafe_allow_html=True)
 
 local_css("style.css")
 
@@ -43,13 +43,7 @@ st.logo(image="kognitiv_spark_logo.png", icon_image="kognitiv_spark_logo.png")
 
 st.title("Kognitiv Spark Help Desk Q&A")
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.page_link("app.py", label="Home")
-with col2:
-    st.page_link("pages/chat.py", label="Chat")
-with col3:
-    st.page_link("pages/citations.py", label="References")
+
 st.divider()
 with st.container():
     display_instructions()

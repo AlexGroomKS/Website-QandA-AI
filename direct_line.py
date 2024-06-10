@@ -1,23 +1,19 @@
 import streamlit as st
-
 import requests
 import time
 # Token endpoint
 replacement_dict = {
     "palm panel": ["panel", "palm panel", "palm"],
-    "RemoteSpark": ["spark", "remote", "remote spark"],
-    "Network Firewall Rules": ["firewall", "network rules", "firewall rules", "network firewall"],
+    #"RemoteSpark": ["spark", "remote", "remote spark", "remotespark", "remote-spark", "Remote-Spark"],
     "Windows Device Portal": ["device portal", "windows portal", "windows device"],
     "User Guides": ["guides", "user manual", "instructions", "manual"],
     "Installing RemoteSpark via Sideload": ["install sideload", "sideload", "install RemoteSpark"],
     "Remote Assist": ["assist", "remote assist", "remote assistance"],
-    #"Configuration Settings": ["settings", "configuration", "config"],
-    #"User Authentication": ["login", "authentication", "user login"],
-    "Installation Guide": ["installation", "install guide", "install instructions"],
+    #"Installation Guide": ["installation", "install guide", "install instructions"],
     "Troubleshooting Guide": ["troubleshoot", "troubleshooting", "problem solving", "error guide"],
     "Performance Optimization": ["optimization", "performance tuning", "performance", "optimize"],
     "RemoteSpark Voice Command": ["voice command", "speech command"],
-    "Network Firewall Rules": ["firewall settings", "firewall configuration", "firewall rules", "firewall config", "firewall setup"],
+    "Network Firewall Rules": ["firewall settings", "firewall configuration", "firewall rules", "firewall config", "firewall setup", "network rules", "network firewall"],
     "Windows Device Portal": ["device portal", "windows portal", "portal"]
 }
 
@@ -81,6 +77,8 @@ class DirectLineClient:
         response.raise_for_status()
         return response.json()['id']
 
+
+    # Handle Actions, such as prompt clarification/topic guidance
     def get_bot_response(self, reply_to_id, polling_interval_type='client'):
         headers = {
             "Authorization": f"Bearer {self.token}",
@@ -102,6 +100,7 @@ class DirectLineClient:
             response.raise_for_status()
             activities = response.json().get("activities", [])
             
+            print(f'Activity: {activities[len(activities)-1]}')
             for activity in reversed(activities):
                 if "name" in activity["from"]:
                     if activity["replyToId"] == reply_to_id:
@@ -113,11 +112,16 @@ class DirectLineClient:
                                 for c in entity["citation"]:
                                     citations.append({"number": counter, "url": c["appearance"]["url"]})
                                     counter += 1
-                    
-                        return activity["text"], citations
+
+                        # Extract suggested actions if they exist
+                        suggested_actions = []
+                        if 'suggestedActions' in activity:
+                            suggested_actions = activity['suggestedActions'].get('actions', [])
+
+                        return activity["text"], citations, suggested_actions
             time.sleep(interval)
 
-        return None
+        return None, [], []
 
 # Function to get a token for the Copilot
 def get_copilot_token(token_endpoint):
