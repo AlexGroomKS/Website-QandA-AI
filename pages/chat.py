@@ -67,6 +67,7 @@ def typing_animation(placeholder):
 
 # Function to handle suggested action click
 def handle_suggested_action(action_value):
+    st.session_state["suggested_actions"] = []
     st.session_state.messages.append({"role": "user", "content": action_value})
     with st.chat_message("user"):
         st.markdown(action_value)
