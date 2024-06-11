@@ -45,7 +45,7 @@ st.title("AI Q&A Chat Bot")
 st.divider()
 
 # Setup the sidebar, add buttons to clear the conversation and show an example conversation
-if st.sidebar.button("Clear Conversation", key='clear_chat_button'):
+if st.sidebar.button("Start New Conversation", key='clear_chat_button'):
     st.session_state.messages = []
     move_focus()
 if st.sidebar.button("Show Example Conversation", key='show_example_conversation'):

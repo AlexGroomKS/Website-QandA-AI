@@ -20,13 +20,13 @@ def initialize_streamlit_session():
 
 def display_instructions():
     st.markdown('''
-        ### Here are some instructions to help you get started
+        ### Overview
         ''')
     st.markdown('''
-        - Go to the 'Chat' page to talk to our website assistant.
-        - The bot will respond to your message and will provide references from https://help.kognitivspark.com/.
-        - Use specific keywords or phrases for better responses.
-        - If you need to start a new conversation, enter "restart" then "yes".
+        - The bot will respond to your message and will provide references from https://help.kognitivspark.com/
+        - Use specific keywords or phrases for better responses
+        - Go to the references page to view the references provided by the bot for each prompt
+        - If you need to start a new conversation click on the "Start New Conversation" button on the sidebar while on the chat page
     ''')
 
 # Load custom CSS
