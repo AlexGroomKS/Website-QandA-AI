@@ -86,7 +86,6 @@ def handle_suggested_action(action_value):
         st.session_state.citations.append({"prompt": action_value, "citations": citations})
         st.session_state.client.add_context(action_value)
         st.session_state["suggested_actions"] = suggested_actions
-        display_chat()
         with st.chat_message("assistant"):
             bot_response_animation(bot_response)
     else:
