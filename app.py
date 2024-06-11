@@ -15,8 +15,15 @@ def initialize_streamlit_session():
     
     if "citations" not in st.session_state:
         st.session_state.citations = []
+    if "suggested_actions" not in st.session_state:
+        st.session_state.suggested_actions = []
+
     if "pending_response" not in st.session_state:
         st.session_state.pending_response = False
+    if "clear_chat_disabled" not in st.session_state:
+        st.session_state.clear_chat_disabled = False
+    if "example_conversation_disabled" not in st.session_state:
+        st.session_state.example_conversation_disabled = False
 
 def display_instructions():
     st.markdown('''
