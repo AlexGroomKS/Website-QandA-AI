@@ -1,20 +1,29 @@
 # chat.py
+# Importing necessary libraries
 import direct_line as dl
 import streamlit as st
 import app
 import time
 import streamlit.components.v1 as components
 
-# Display instructions for using the chat bot
+# Function to animate bot responses
 def bot_response_animation(bot_response):
+    # Create an empty placeholder
     placeholder = st.empty()
+    
     animated_text = ""
+    # Loop through each character in the bot response
     for char in bot_response:
+        # Add the character to the animated text
         animated_text += char
+        # Display the animated text in the placeholder
         placeholder.markdown(animated_text)
-        time.sleep(0.01)  
+        # Pause for a short time to create the animation effect
+        time.sleep(0.01)
 
+# Function to move focus to the textarea
 def move_focus():
+    # Use HTML and JavaScript to select all textareas and focus on them
     components.html(
         """
         <script>
@@ -26,14 +35,16 @@ def move_focus():
         """,
     )
 
+# Initialize the Streamlit session, Apply the CSS styles from style.css, Display the logo, and Set the title of the Streamlit app
 app.initialize_streamlit_session()
 app.local_css("style.css")
 st.logo(image="kognitiv_spark_logo.png", icon_image="kognitiv_spark_logo.png")
 st.title("AI Q&A Chat Bot")
 
+# Add a divider for visual separation
 st.divider()
 
-# Sidebar setup
+# Setup the sidebar, add buttons to clear the conversation and show an example conversation
 if st.sidebar.button("Clear Conversation", key='clear_chat_button'):
     st.session_state.messages = []
     move_focus()
@@ -59,27 +70,39 @@ def display_chat():
                 st.markdown(message["content"])
 
 # Typing animation
-def typing_animation(placeholder):
-    animation_steps = ["", ".", "..", "..."]
-    for step in animation_steps:
-        placeholder.markdown(f"Fetching a response{step}")
-        time.sleep(0.5)
+#def typing_animation(placeholder):
+ #   animation_steps = ["", ".", "..", "..."]
+  #  for step in animation_steps:
+   #     placeholder.markdown(f"Fetching a response{step}")
+    #    time.sleep(0.5)
 
 # Function to handle suggested action click
 def handle_suggested_action(action_value):
-    st.session_state["suggested_actions"] = []
+    st.session_state["suggested_actions"] = [] 
     st.session_state.messages.append({"role": "user", "content": action_value})
     with st.chat_message("user"):
         st.markdown(action_value)
 
-    loading_placeholder = st.empty()
-    with loading_placeholder.container():
-        with st.chat_message("assistant"):
-            typing_animation(loading_placeholder)
-
-    st.session_state.reply_id = st.session_state.client.send_message(action_value)
-    bot_response, citations, suggested_actions = st.session_state.client.get_bot_response(st.session_state.reply_id)
-
+    #loading_placeholder = st.empty()
+    #with loading_placeholder.container():
+     #   with st.chat_message("assistant"):
+      #      typing_animation(loading_placeholder)
+    try:
+        st.session_state.reply_id = st.session_state.client.send_message(action_value)
+    except Exception as e:
+        st.error(f"Error sending message: {e}")
+        return
+    
+    try:
+        loading_placeholder = st.empty()
+        with loading_placeholder.container():
+            with st.chat_message("assistant"):
+                with st.spinner("Fetching response..."):
+                    bot_response, citations, suggested_actions = st.session_state.client.get_bot_response(st.session_state.reply_id)
+    except Exception as e:
+        st.error(f"Error getting bot response: {e}")
+        return
+    
     loading_placeholder.empty()
 
     if bot_response:
@@ -104,14 +127,13 @@ if prompt:
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    st.session_state.reply_id = st.session_state.client.send_message(prompt)
+
     loading_placeholder = st.empty()
     with loading_placeholder.container():
         with st.chat_message("assistant"):
-            typing_animation(loading_placeholder)
-
-    st.session_state.reply_id = st.session_state.client.send_message(prompt)
-    bot_response, citations, suggested_actions = st.session_state.client.get_bot_response(st.session_state.reply_id)
-
+            with st.spinner("Fetching response..."):
+                bot_response, citations, suggested_actions = st.session_state.client.get_bot_response(st.session_state.reply_id)
     loading_placeholder.empty()
 
     if bot_response:

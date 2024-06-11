@@ -1,7 +1,8 @@
 import streamlit as st
 import requests
 import time
-# Token endpoint
+from functools import wraps
+
 replacement_dict = {
     "palm panel": ["panel", "palm panel", "palm"],
     #"RemoteSpark": ["spark", "remote", "remote spark", "remotespark", "remote-spark", "Remote-Spark"],
@@ -17,13 +18,49 @@ replacement_dict = {
     "Windows Device Portal": ["device portal", "windows portal", "portal"]
 }
 
+# Function to replace terms in the query
 def replace_terms_in_query(query, replacement_dict):
-    for replacement, terms in replacement_dict.items():
-        for term in terms:
-            if term in query.lower():
-                query = query.lower().replace(term, replacement)
-                break  # Replace only the first matching term
-    return query
+    try:
+        for replacement, terms in replacement_dict.items():
+            for term in terms:
+                if term in query.lower():
+                    query = query.lower().replace(term, replacement)
+                    break  # Replace only the first matching term
+        return query
+    except Exception as e:
+        print(f"Error in replace_terms_in_query: {e}")
+        return query
+
+# Decorator to rate limit the function
+def rate_limited(max_per_second):
+    """
+    Decorator that rate-limits the function to be called up to max_per_second times per second.
+    """
+    min_interval = 1.0 / float(max_per_second)
+
+    def decorate(func):
+        last_time_called = [0.0]
+
+        @wraps(func)
+        def rate_limited_function(*args, **kwargs):
+            try:
+                elapsed = time.clock() - last_time_called[0]
+                left_to_wait = min_interval - elapsed
+
+                if left_to_wait > 0:
+                    time.sleep(left_to_wait)
+
+                ret = func(*args, **kwargs)
+
+                last_time_called[0] = time.clock()
+                return ret
+            except Exception as e:
+                print(f"Error in rate_limited_function: {e}")
+                return None
+
+        return rate_limited_function
+
+    return decorate
 
 # --- Class to make direct line connection to the Copilot using Bot Framework functions ---
 class DirectLineClient:
@@ -33,52 +70,67 @@ class DirectLineClient:
         self.watermark = None
         self.context = []
         #self.citations = []
-    
+
     def add_context(self, val):
-        if val not in self.context:
-            self.context.append(val)
-        if len(self.context) > 10:  # Limit to last 10 context entries
-            self.context.pop(0)
+        try:
+            if val not in self.context:
+                self.context.append(val)
+            if len(self.context) > 10:  # Limit to last 10 context entries
+                self.context.pop(0)
+        except Exception as e:
+            print(f"Error in add_context: {e}")
 
     def clear_context(self):
-        self.context = []
+        try:
+            self.context = []
+        except Exception as e:
+            print(f"Error in clear_context: {e}")
 
     def start_conversation(self):
-        self.clear_context()
-        if not self.conversation_id:
+        try:
+            self.clear_context()
+            if not self.conversation_id:
+                headers = {
+                    "Authorization": f"Bearer {self.token}",
+                    "Content-Type": "application/json"
+                }
+                response = requests.post("https://directline.botframework.com/v3/directline/conversations", headers=headers)
+                response.raise_for_status()
+                conversation = response.json()
+                self.conversation_id = conversation["conversationId"]
+                #self.watermark = conversation["watermark"]
+        except Exception as e:
+            print(f"Error in start_conversation: {e}")
+
+    # Send a message to the bot, limited to 10 requests per second
+    #@rate_limited(10)
+    def send_message(self, message):
+        try:
+            message = replace_terms_in_query(message, replacement_dict)
+
             headers = {
                 "Authorization": f"Bearer {self.token}",
                 "Content-Type": "application/json"
             }
-            response = requests.post("https://directline.botframework.com/v3/directline/conversations", headers=headers)
+            payload = {
+                "locale": "en-US",
+                "type": "message",
+                "from": {
+                    "id": "user1"
+                },
+                "text": message,
+                "entities": [{"type": "context", "value": self.context}] if self.context else []
+            }
+            url = f"https://directline.botframework.com/v3/directline/conversations/{self.conversation_id}/activities"
+            response = requests.post(url, headers=headers, json=payload)
             response.raise_for_status()
-            conversation = response.json()
-            self.conversation_id = conversation["conversationId"]
+            return response.json()['id']
+        except Exception as e:
+            print(f"Error in send_message: {e}")
+            return None
 
-    def send_message(self, message):
-
-        message = replace_terms_in_query(message, replacement_dict)
-
-        headers = {
-            "Authorization": f"Bearer {self.token}",
-            "Content-Type": "application/json"
-        }
-        payload = {
-            "locale": "en-US",
-            "type": "message",
-            "from": {
-                "id": "user1"
-            },
-            "text": message,
-            "entities": [{"type": "context", "value": self.context}] if self.context else []
-        }
-        url = f"https://directline.botframework.com/v3/directline/conversations/{self.conversation_id}/activities"
-        response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()
-        return response.json()['id']
-
-
-    # Handle Actions, such as prompt clarification/topic guidance
+    # Get the bot's response, limited to 10 requests per second
+    #@rate_limited(10)
     def get_bot_response(self, reply_to_id, polling_interval_type='client'):
         headers = {
             "Authorization": f"Bearer {self.token}",
@@ -104,6 +156,8 @@ class DirectLineClient:
             for activity in reversed(activities):
                 if "name" in activity["from"]:
                     if activity["replyToId"] == reply_to_id:
+                        if "OpenAIAdditionalInstructionsLengthExceededLimit" in activity["text"]:
+                            return "An error has occured, please try again later.", [], []
                         # Extract citations if they exist
                         citations = []
                         counter = 1
@@ -122,6 +176,7 @@ class DirectLineClient:
             time.sleep(interval)
 
         return None, [], []
+        
 
 # Function to get a token for the Copilot
 def get_copilot_token(token_endpoint):
