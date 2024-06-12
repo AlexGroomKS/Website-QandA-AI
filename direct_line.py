@@ -5,7 +5,7 @@ from functools import wraps
 
 replacement_dict = {
     "palm panel": ["panel", "palm panel", "palm"],
-    #"RemoteSpark": ["spark", "remote", "remote spark", "remotespark", "remote-spark", "Remote-Spark"],
+    "RemoteSpark": ["remote spark", "remotespark", "remote-spark", "Remote-Spark"],
     "Windows Device Portal": ["device portal", "windows portal", "windows device"],
     "User Guides": ["guides", "user manual", "instructions", "manual"],
     "Installing RemoteSpark via Sideload": ["install sideload", "sideload", "install RemoteSpark"],
@@ -156,8 +156,8 @@ class DirectLineClient:
             for activity in reversed(activities):
                 if "name" in activity["from"]:
                     if activity["replyToId"] == reply_to_id:
-                        if "OpenAIAdditionalInstructionsLengthExceededLimit" in activity["text"]:
-                            return "An error has occured, please try again later.", [], []
+                        #if "OpenAIAdditionalInstructionsLengthExceededLimit" in activity["text"]:
+                            #return "An error has occured, please try again later.", [], []
                         # Extract citations if they exist
                         citations = []
                         counter = 1
