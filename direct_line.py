@@ -154,7 +154,7 @@ class DirectLineClient:
             
             print(f'Activity: {activities[len(activities)-1]}')
             for activity in reversed(activities):
-                if "name" in activity["from"]:
+                if "name" in activity["from"] and "type" in activity and activity["type"] == "message":
                     if activity["replyToId"] == reply_to_id:
                         #if "OpenAIAdditionalInstructionsLengthExceededLimit" in activity["text"]:
                             #return "An error has occured, please try again later.", [], []
